@@ -16,12 +16,9 @@ class CdrsController extends Controller
     {
         $model = new CdrsModel();
 
-        //return $this->render('index', ['model' => $model] );
-
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            // valid data received in $model
 
-            // do something meaningful here about $model ...
+            $model->backup();
 
             return $this->render('index', ['model' => $model]);
         } else {
