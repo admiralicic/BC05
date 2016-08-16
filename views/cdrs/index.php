@@ -5,7 +5,7 @@ use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use yii\jui\DatePicker;
 
-$this->title = 'Cdrs';
+$this->title = 'CDRS Backup';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="site-login">
