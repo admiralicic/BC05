@@ -5,8 +5,6 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 
-
-
 class CdrsModel extends Model {
 
     public $start_date;
@@ -21,28 +19,8 @@ class CdrsModel extends Model {
 
     public function backup(){
 
-
-/*        $sql = <<<eof
-            SELECT * 
-            FROM cdrs 
-            WHERE started_at >= :start_date
-            HAVING DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date
-eof;
-
-        $command = Yii::$app->db->createCommand($sql);
-        $command->bindParam(':start_date', date('Y-m-d 00:00:00',strtotime($this->start_date)));
-        $command->bindParam(':end_date', date('Y-m-d 00:00:00', strtotime($this->end_date)));
-        $result = $command->queryAll();
-*/
-
         $filename = date('dmY', strtotime($this->start_date)).'_'.date('dmY', strtotime($this->end_date));
 
-/*        $f = fopen($this->path.$filename.'.csv', 'w');
-        foreach ($result as $row){
-            fputcsv($f, $row);
-        }
-        fclose($f);
-*/
         $fullpath = $this->path.$filename.'.csv';
 
         $sql = <<<eof
@@ -98,7 +76,6 @@ eof;
         $zip->close();
 
         $table_name = 'temp_cdrs_'.substr($filename,0,strlen($filename)-4);
-
 
         $sql = <<<eof
             DROP TABLE IF EXISTS $table_name;
@@ -164,8 +141,6 @@ eof;
 
         return $result;
     }
-
-
 
     public function rules (){
 

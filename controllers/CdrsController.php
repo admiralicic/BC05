@@ -7,7 +7,6 @@ use yii\web\Controller;
 use app\models\CdrsModel;
 use yii\data\ArrayDataProvider;
 
-
 class CdrsController extends Controller
 {
 
@@ -19,12 +18,10 @@ class CdrsController extends Controller
 
             $model->backup();
 
-            //return $this->render('index', ['model' => $model]);
             return $this->redirect(Yii::$app->urlManager->createUrl("cdrs/backup-list"));
         } else {
-            // either the page is initially displayed or there is some validation error
-            return $this->render('index', ['model' => $model]);
 
+            return $this->render('index', ['model' => $model]);
 
         }
 
@@ -60,7 +57,7 @@ class CdrsController extends Controller
         $provider = new ArrayDataProvider([
             'allModels' => $list,
             'sort'=> [
-                'attributes' => ['created_at'],
+                'attributes' => ['site_id', 'started_at'],
             ],
             'pagination' => [
                 'pageSize' => 20,
