@@ -9,7 +9,7 @@ class CdrsModel extends Model {
 
     public $start_date;
     public $end_date;
-    public $to_delete;
+    public $toDelete = false;
 
     public $path;
 
@@ -42,6 +42,31 @@ eof;
         $zip->addFile($this->path.$filename.'.csv', $filename.'.csv');
         $zip->close();
         unlink($this->path.$filename.'.csv');
+
+        $this->deleteSelected();
+
+    }
+
+    public function deleteSelected(){
+
+        if ($this->toDelete == false){
+            return;
+        }
+
+        $sql = <<<eof
+        CREATE TEMPORARY TABLE temp (
+            INDEX id(id)
+        )
+            SELECT id, started_at, duration FROM cdrs WHERE started_at >= :start_date
+            HAVING DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date;
+            DELETE cdrs, temp FROM cdrs INNER JOIN temp WHERE cdrs.id = temp.id;
+            DROP TEMPORARY TABLE temp;
+eof;
+
+        $command = Yii::$app->db->createCommand($sql);
+        $command->bindParam(':start_date', date('Y-m-d 00:00:00',strtotime($this->start_date)));
+        $command->bindParam(':end_date', date('Y-m-d 00:00:00', strtotime($this->end_date)));
+        $command->execute();
 
     }
 
@@ -147,7 +172,8 @@ eof;
         return
         [
             [['start_date', 'end_date'], 'required'],
-            ['end_date', 'validateDates']
+            ['end_date', 'validateDates'],
+            ['toDelete', 'boolean'],
         ];
     }
 
@@ -169,7 +195,7 @@ eof;
         return [
             'start_date'    => 'Start date',
             'end_date'      => 'End date',
-            'to_delete'     => 'delete CDRS after backup'
+            'toDelete'     => 'delete CDRS after backup'
         ];
     }
 

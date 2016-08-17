@@ -28,10 +28,9 @@ $this->params['breadcrumbs'][] = $this->title;
             'dateFormat' => 'dd-MM-yyyy',
             'options' => ['class' => 'form-control'],
         ]); ?>
-        <?= $form->field($model, 'to_delete')->checkbox([
+        <?= $form->field($model, 'toDelete')->checkbox([
                 'template' => "<div class=\"col-lg-offset-1 col-lg-3\">{input} {label}</div>\n<div class=\"col-lg-8\">{error}</div>",
         ]);
-
         ?>
 
         <div class="form-group">
