@@ -48,5 +48,26 @@ class CdrsController extends Controller
         $model = new CdrsModel();
 
         $model->restoreBackup($id);
+
+        return $this->render('restored', ['model' => substr($id, 0, strlen($id) - 4)]);
     }
+
+    public function actionRestored($id){
+        $model = new CdrsModel();
+
+        $list = $model->readRestored($id);
+
+        $provider = new ArrayDataProvider([
+            'allModels' => $list,
+            'sort'=> [
+                'attributes' => ['created_at'],
+            ],
+            'pagination' => [
+                'pageSize' => 20,
+            ]
+        ]);
+
+        return $this->render('restored-list', ['dataProvider' => $provider]);
+    }
+
 }
