@@ -29,7 +29,7 @@ class CdrsModel extends Model {
             LINES TERMINATED BY '\n'
             FROM cdrs 
             WHERE started_at >= :start_date
-            HAVING DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date
+            AND DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date
 eof;
 
         $command = Yii::$app->db->createCommand($sql);
@@ -53,7 +53,7 @@ eof;
             return;
         }
 
-        $sql = <<<eof
+       /* $sql = <<<eof
         CREATE TEMPORARY TABLE temp (
             INDEX id(id)
         )
@@ -61,7 +61,13 @@ eof;
             HAVING DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date;
             DELETE cdrs, temp FROM cdrs INNER JOIN temp WHERE cdrs.id = temp.id;
             DROP TEMPORARY TABLE temp;
+eof;*/
+        $sql = <<<eof
+        DELETE FROM cdrs 
+            WHERE started_at >= :start_date
+            AND DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date
 eof;
+
 
         $command = Yii::$app->db->createCommand($sql);
         $command->bindParam(':start_date', date('Y-m-d 00:00:00',strtotime($this->start_date)));
@@ -86,6 +92,10 @@ eof;
                 }
                 closedir($dh);
             }
+
+            usort($files, function($b, $a){
+                return $a['created'] - $b['created'];
+            });
 
             return $files;
         }
