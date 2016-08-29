@@ -67,7 +67,7 @@ eof;
 
         if($count < 1) return;
 
-        $f = fopen($fullpath, 'w');
+        $handle = fopen($fullpath, 'w');
 
         while ($offset < $count){
 
@@ -75,6 +75,7 @@ eof;
                 SELECT * FROM cdrs 
                 WHERE started_at >= :start_date
                 AND DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date
+                ORDER BY started_at
                 LIMIT $limit OFFSET $offset
 eof;
 
@@ -86,14 +87,14 @@ eof;
 
 
             foreach($results as $row){
-                fputcsv($f, $row);
+                fputcsv($handle, $row);
             }
 
 
             $offset = $offset + $limit;
         }
 
-        fclose($f);
+        fclose($handle);
         $zip = new \ZipArchive();
         $zip->open($this->path.$filename.'.zip', \ZIPARCHIVE::CREATE);
         $zip->addFile($this->path.$filename.'.csv', $filename.'.csv');
@@ -222,6 +223,37 @@ eof;
 
         $table_name = 'temp_cdrs_'.substr($filename,0,strlen($filename)-4);
 
+        $source_path = $this->path.substr($filename,0,strlen($filename)-4).'.csv';
+
+        if (($handle = fopen($source_path, 'r')) !== false){
+
+            $this->createTable($table_name);
+
+            while ($data = fgetcsv($handle, 1000, ",")){
+                $num = count($data);
+
+                $row_to_insert = "";
+                for($i = 0; $i < $num; $i++){
+                    //$col[$i] = $data[$i];
+                    $row_to_insert = $row_to_insert."'".$data[$i]."',";
+                }
+
+                $rows_to_insert[] = "(".substr($row_to_insert,0,strlen($row_to_insert)-1).")";
+
+            }
+
+            fclose($handle);
+        }
+
+        $sql = "INSERT INTO $table_name VALUES ".implode($rows_to_insert,",");
+
+        $command = Yii::$app->db->createCommand($sql);
+        $command->execute();
+
+        unlink($source_path);
+    }
+
+    public function createTable($table_name){
         $sql = <<<eof
             DROP TABLE IF EXISTS $table_name;
             CREATE TABLE $table_name (
@@ -259,20 +291,6 @@ eof;
 
         $command = Yii::$app->db->createCommand($sql);
         $command->execute();
-
-        $source_path = $this->path.substr($filename,0,strlen($filename)-4).'.csv';
-
-
-        $sql = <<<eof
-            LOAD DATA INFILE '$source_path'
-            INTO TABLE $table_name
-            FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
-            LINES TERMINATED BY '\n'
-eof;
-        $command = Yii::$app->db->createCommand($sql);
-        $command->execute();
-
-        unlink($source_path);
     }
 
     public function rules (){
