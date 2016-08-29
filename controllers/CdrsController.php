@@ -6,6 +6,7 @@ use Yii;
 use yii\web\Controller;
 use app\models\CdrsModel;
 use yii\data\SqlDataProvider;
+use yii\data\ArrayDataProvider;
 
 class CdrsController extends Controller
 {
@@ -19,6 +20,7 @@ class CdrsController extends Controller
             $model->backup();
 
             return $this->redirect(Yii::$app->urlManager->createUrl("cdrs/backup-list"));
+
         } else {
 
             return $this->render('index', ['model' => $model]);
@@ -28,7 +30,9 @@ class CdrsController extends Controller
     }
 
     public function actionBackupList(){
+
         $model = new CdrsModel();
+
         $provider = new ArrayDataProvider([
            'allModels' => $model->readFiles(),
             'sort' => [
@@ -38,6 +42,7 @@ class CdrsController extends Controller
                 'pageSize' => 10,
             ]
         ]);
+
         return $this->render('backup-list', ['dataProvider' => $provider]);
     }
 
@@ -69,7 +74,6 @@ class CdrsController extends Controller
                 ],
             ],
         ]);
-
 
         return $this->render('restored-list', ['dataProvider' => $provider]);
     }
