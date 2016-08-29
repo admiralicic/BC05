@@ -17,7 +17,7 @@ class CdrsModel extends Model {
         $this->path = $this->path = Yii::getAlias('@app').'/backup/';
     }
 
-    public function backup_OLD(){
+    /*public function backup_OLD(){
 
         $filename = date('dmY', strtotime($this->start_date)).'_'.date('dmY', strtotime($this->end_date));
 
@@ -45,7 +45,7 @@ eof;
 
         $this->deleteSelected();
 
-    }
+    }*/
 
     public function backup(){
 
@@ -152,7 +152,7 @@ eof;
         return null;
     }
 
-    public function restoreBackup_OLD($filename){
+    /*public function restoreBackup_OLD($filename){
 
         $zip = new \ZipArchive();
         $zip->open($this->path.$filename);
@@ -212,7 +212,7 @@ eof;
         $command->execute();
 
         unlink($source_path);
-    }
+    }*/
 
     public function restoreBackup($filename){
 
