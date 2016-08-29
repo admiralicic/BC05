@@ -5,7 +5,7 @@ namespace app\controllers;
 use Yii;
 use yii\web\Controller;
 use app\models\CdrsModel;
-use yii\data\ArrayDataProvider;
+use yii\data\SqlDataProvider;
 
 class CdrsController extends Controller
 {
@@ -50,19 +50,26 @@ class CdrsController extends Controller
     }
 
     public function actionRestored($id){
-        $model = new CdrsModel();
 
-        $list = $model->readRestored($id);
+        $table_name = 'temp_cdrs_'.$id;
 
-        $provider = new ArrayDataProvider([
-            'allModels' => $list,
-            'sort'=> [
-                'attributes' => ['site_id', 'started_at'],
-            ],
+        $count = Yii::$app->db->createCommand(
+            "SELECT COUNT(*) FROM $table_name")->queryScalar();
+
+        $provider = new SqlDataProvider([
+            'sql' => "SELECT * FROM $table_name ORDER BY started_at",
+            'totalCount' => $count,
             'pagination' => [
                 'pageSize' => 20,
-            ]
+            ],
+            'sort' => [
+                'attributes' => [
+                    'site_id',
+                    'started_at',
+                ],
+            ],
         ]);
+
 
         return $this->render('restored-list', ['dataProvider' => $provider]);
     }

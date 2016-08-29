@@ -52,16 +52,7 @@ eof;
         if ($this->toDelete == false){
             return;
         }
-
-       /* $sql = <<<eof
-        CREATE TEMPORARY TABLE temp (
-            INDEX id(id)
-        )
-            SELECT id, started_at, duration FROM cdrs WHERE started_at >= :start_date
-            HAVING DATE_ADD(started_at, INTERVAL duration SECOND) < :end_date;
-            DELETE cdrs, temp FROM cdrs INNER JOIN temp WHERE cdrs.id = temp.id;
-            DROP TEMPORARY TABLE temp;
-eof;*/
+        
         $sql = <<<eof
         DELETE FROM cdrs 
             WHERE started_at >= :start_date
@@ -165,17 +156,6 @@ eof;
         unlink($source_path);
     }
 
-
-    public function readRestored($id){
-
-        $table_name = 'temp_cdrs_'.$id;
-
-        $sql = "SELECT * FROM $table_name ORDER BY started_at";
-        $command = Yii::$app->db->createCommand($sql);
-        $result = $command->queryAll();
-
-        return $result;
-    }
 
     public function rules (){
 
