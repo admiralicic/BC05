@@ -52,6 +52,7 @@ class CdrsController extends Controller
         $model->restoreBackup($id);
 
         return $this->render('restored', ['model' => substr($id, 0, strlen($id) - 4)]);
+
     }
 
     public function actionRestored($id){

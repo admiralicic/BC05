@@ -12,9 +12,12 @@ class CdrsModel extends Model {
     public $toDelete = false;
 
     public $path;
+    //public $rows_to_insert = "";
+    //public $rows_to_insert = array();
 
     function __construct(){
         $this->path = $this->path = Yii::getAlias('@app').'/backup/';
+        //ini_set('memory_limit', '1024M');
     }
 
     /*public function backup_OLD(){
@@ -84,12 +87,9 @@ eof;
             $command->bindParam(':end_date', date('Y-m-d 00:00:00', strtotime($this->end_date)));
             $results = $command->queryAll();
 
-
-
             foreach($results as $row){
                 fputcsv($handle, $row);
             }
-
 
             $offset = $offset + $limit;
         }
@@ -151,8 +151,8 @@ eof;
 
         return null;
     }
-
-    /*public function restoreBackup_OLD($filename){
+/*
+    public function restoreBackup_OLD($filename){
 
         $zip = new \ZipArchive();
         $zip->open($this->path.$filename);
@@ -212,8 +212,8 @@ eof;
         $command->execute();
 
         unlink($source_path);
-    }*/
-
+    }
+*/
     public function restoreBackup($filename){
 
         $zip = new \ZipArchive();
@@ -228,27 +228,36 @@ eof;
         if (($handle = fopen($source_path, 'r')) !== false){
 
             $this->createTable($table_name);
+            $counter = 1;
+            $rows_to_insert = array();
 
             while ($data = fgetcsv($handle, 1000, ",")){
                 $num = count($data);
 
-                $row_to_insert = "";
+                $row_to_insert = array();
                 for($i = 0; $i < $num; $i++){
-                    //$col[$i] = $data[$i];
-                    $row_to_insert = $row_to_insert."'".$data[$i]."',";
+                    $row_to_insert[] = "'".$data[$i]."'";
                 }
 
-                $rows_to_insert[] = "(".substr($row_to_insert,0,strlen($row_to_insert)-1).")";
+                $rows_to_insert[] = "(".implode($row_to_insert,",").")";
+
+                $counter++;
+
+               if ($counter % 1000 == 0){
+
+                    $sql = "INSERT INTO $table_name VALUES ".implode($rows_to_insert,",");
+                    Yii::$app->db->createCommand($sql)->execute();
+                    unset($sql);
+                    $rows_to_insert = array();
+                }
 
             }
 
+            $sql = "INSERT INTO $table_name VALUES ".implode($rows_to_insert,",");
+            Yii::$app->db->createCommand($sql)->execute();
+
             fclose($handle);
         }
-
-        $sql = "INSERT INTO $table_name VALUES ".implode($rows_to_insert,",");
-
-        $command = Yii::$app->db->createCommand($sql);
-        $command->execute();
 
         unlink($source_path);
     }
