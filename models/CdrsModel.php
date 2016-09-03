@@ -243,7 +243,7 @@ eof;
 
                 $counter++;
 
-               if ($counter % 1000 == 0){
+               if ($counter % 10000 == 0){
 
                     $sql = "INSERT INTO $table_name VALUES ".implode($rows_to_insert,",");
                     Yii::$app->db->createCommand($sql)->execute();
