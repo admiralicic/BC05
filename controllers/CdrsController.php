@@ -7,6 +7,7 @@ use yii\web\Controller;
 use app\models\CdrsModel;
 use yii\data\SqlDataProvider;
 use yii\data\ArrayDataProvider;
+use app\components\EmptyLogger;
 
 class CdrsController extends Controller
 {
@@ -47,6 +48,8 @@ class CdrsController extends Controller
     }
 
     public function actionRestore($id){
+        Yii::setLogger(new EmptyLogger);
+
         $model = new CdrsModel();
 
         $model->restoreBackup($id);
